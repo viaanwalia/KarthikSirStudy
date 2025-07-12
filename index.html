@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study With Teachers!</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Import Google Font - Inter for a clean, modern look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            margin: 0;
+            color: #2d3748; /* Dark text color */
+            padding-bottom: 60px; /* Space for the fixed footer */
+            padding-top: 2rem; /* Add some padding at the top */
+        }
+
+        .container {
+            background-color: #ffffff; /* White background for the main content area */
+            padding: 2.5rem; /* Large padding */
+            border-radius: 1.5rem; /* Rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            text-align: center;
+            max-width: 90%; /* Responsive width */
+            width: 900px; /* Wider max width for gallery */
+            margin: 1rem auto; /* Center container with margin */
+        }
+
+        h1 {
+            font-size: 2.5rem; /* Large heading */
+            font-weight: 700; /* Bold font */
+            color: #2c5282; /* Darker blue for heading */
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.125rem; /* Slightly larger paragraph text */
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: #4a5568; /* Medium gray text */
+        }
+
+        /* Teacher Gallery Grid */
+        .teacher-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid columns */
+            gap: 1.5rem; /* Space between cards */
+            margin-top: 2rem;
+            justify-content: center; /* Center items in the grid */
+        }
+
+        .teacher-card {
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Lighter shadow for cards */
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none; /* Remove underline from card link */
+            color: inherit; /* Inherit text color */
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); /* Enhanced shadow on hover */
+        }
+
+        .teacher-card img {
+            width: 150px; /* Fixed image size */
+            height: 150px;
+            border-radius: 50%; /* Circular image */
+            object-fit: cover; /* Ensure image covers the area */
+            margin-bottom: 1rem;
+            border: 4px solid #4299e1; /* Blue border around image */
+        }
+
+        .teacher-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c5282;
+            margin-bottom: 0.5rem;
+        }
+
+        .teacher-card .view-button {
+            display: inline-block;
+            background-color: #4299e1;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .teacher-card .view-button:hover {
+            background-color: #3182ce;
+        }
+
+        /* Footer styling */
+        .page-footer {
+            position: fixed; /* Keep it at the bottom of the viewport */
+            bottom: 0; /* Align to the very bottom */
+            width: 100%; /* Span the full width */
+            text-align: center; /* Center the text */
+            padding: 10px 0; /* Add some vertical padding */
+            background-color: #333; /* Dark background for contrast */
+            color: #fff; /* White text color */
+            font-size: 0.9rem; /* Slightly smaller font size */
+            z-index: 999; /* Ensure it's above other content */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Study With Teachers!</h1>
+        <p>
+            Select a teacher below to start an interactive study session designed to help you focus and stay productive. There will be a picture of the teacher along with a sound meter. If your volume goes above the limit, they tell you to study. Enjoy, I guess!
+        </p>
+
+        <div class="teacher-gallery">
+            <!-- Karthik Sir Card -->
+            <a href="karthikstudy.html" class="teacher-card">
+                <img src="https://placehold.co/150x150/4299e1/ffffff?text=Karthik Sir" alt="Karthik Sir">
+                <h2>Karthik Sir</h2>
+                <span class="view-button">Start Session</span>
+            </a>
+
+            <!-- Bhagya Maam Card -->
+            <a href="bhagyamaamstudy.html" class="teacher-card">
+                <img src="https://placehold.co/150x150/48bb78/ffffff?text=Bhagya Ma'am" alt="Bhagya Maam">
+                <h2>Bhagya Maam</h2>
+                <span class="view-button">Start Session</span>
+            </a>
+
+            
+        </div>
+    </div>
+
+    <!-- Footer section -->
+    <footer class="page-footer">
+        <div>Made by Parthan</div>
+    </footer>
+
+</body>

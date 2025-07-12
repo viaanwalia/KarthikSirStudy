@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="karthikstudy.css"> <!-- Assuming a shared CSS file if you have common styles -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study With Bhagya Ma'am!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Import Google Font - Inter for a clean, modern look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        /* Define CSS variables for consistency with JS constants */
+        :root {
+            --fixed-boundary-width: 1000px; /* Set your desired fixed width here */
+            --fixed-boundary-height: 500px; /* Set your desired fixed height here */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background for a soft feel */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars from the moving image */
+            position: relative; /* Needed for absolute positioning of stage-area */
+        }
+
+        /*
+         * THIS IS THE CRUCIAL PART FOR CENTERING THE MOVEMENT AREA
+         * The .stage-area div is absolutely positioned and then translated
+         * by half its own width/height to center it perfectly in the viewport.
+         */
+        .stage-area {
+            position: absolute; /* Take it out of normal flow for precise centering */
+            width: var(--fixed-boundary-width); /* Use CSS variable for width */
+            height: var(--fixed-boundary-height); /* Use CSS variable for height */
+            background-color: #e6eef7; /* Light background to visualize the area */
+            border: 2px dashed #a0aec0; /* Dashed border to clearly show bounds */
+            border-radius: 20px;
+            overflow: hidden; /* Crucial: Clips the image if it tries to go beyond this boundary */
+
+            /* Centering the stage-area itself within the viewport */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Translate by half its own width/height to center */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+        }
+
+        .image-container {
+            position: absolute; /* IMPORTANT: Now absolute relative to its parent .stage-area */
+            width: 150px; /* Fixed size for the image container */
+            height: 150px;
+            /* RE-ADDED: Transition for smooth movement */
+            transition: transform 0.1s linear;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+            border-radius: 20px; /* Rounded corners for the container */
+            overflow: hidden; /* Ensures the image itself respects the container's border-radius */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff; /* White background for image container */
+            /* REMOVED: Static centering, now handled by JS */
+            /* top: 50%; */
+            /* left: 50%; */
+            /* transform: translate(-50%, -50%); */
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the image covers the container, cropping if necessary */
+            border-radius: 20px; /* Rounded corners for the image itself */
+            /* RE-ADDED: Transition for opacity (though not used if image doesn't change) */
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .status-message {
+            position: fixed; /* Stays in place even if content scrolls (though not applicable here) */
+            top: 20px; /* Positioned 20px from the top */
+            background-color: #4a5568; /* Darker gray background */
+            color: #fff; /* White text */
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            z-index: 1000; /* Ensures it's above other elements */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-panel {
+            position: fixed; /* Stays at the bottom */
+            bottom: 55px; /* Adjusted to clear the footer */
+            background-color: #fff; /* White background */
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+            display: flex; /* Uses flexbox for alignment of controls */
+            gap: 15px; /* Space between elements */
+            align-items: center; /* Vertically centers items */
+            z-index: 1000; /* Ensures it's above other elements */
+        }
+
+        .control-panel button {
+            background-color: #4299e1; /* Tailwind blue-500 */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer; /* Indicates it's clickable */
+            border: none;
+            outline: none;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-panel button:hover {
+            background-color: #3182ce; /* Darker blue on hover (Tailwind blue-600) */
+            transform: translateY(-2px); /* Slight lift effect on hover */
+        }
+
+        .control-panel button:active {
+            transform: translateY(0); /* Returns to original position on click */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Smaller shadow on click */
+        }
+
+        .control-panel button.stop {
+            background-color: #ef4444; /* Tailwind red-500 for stop button */
+        }
+
+        .control-panel button.stop:hover {
+            background-color: #dc2626; /* Darker red on hover (Tailwind red-600) */
+        }
+
+        .volume-meter {
+            width: 150px;
+            height: 15px;
+            background-color: #e2e8f0; /* Light gray for meter background */
+            border-radius: 7.5px; /* Fully rounded ends */
+            overflow: hidden; /* Ensures the fill stays within the rounded corners */
+            border: 1px solid #cbd5e0; /* Subtle border */
+        }
+
+        .volume-fill {
+            height: 100%;
+            width: 0%; /* Starts at 0% width */
+            background-color: #48bb78; /* Tailwind green-500 for volume fill */
+            transition: width 0.05s linear; /* Smooth transition for volume changes */
+            border-radius: 7.5px; /* Ensures fill also has rounded corners */
+        }
+
+        /* Custom Modal Styling (instead of alert/confirm) */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Highest z-index to appear on top */
+            visibility: hidden; /* Hidden by default */
+            opacity: 0; /* Fully transparent by default */
+            transition: visibility 0s, opacity 0.3s ease; /* Smooth fade-in/out */
+        }
+
+        .modal.show {
+            visibility: visible; /* Becomes visible */
+            opacity: 1; /* Fully opaque */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Stronger shadow for modal */
+            text-align: center;
+            max-width: 400px;
+            width: 90%; /* Responsive width */
+        }
+
+        .modal-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #2d3748; /* Dark gray text */
+        }
+
+        .modal-content p {
+            font-size: 1rem;
+            color: #4a5568; /* Medium gray text */
+            margin-bottom: 25px;
+        }
+
+        .modal-content button {
+            background-color: #4299e1;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #3182ce;
+        }
+
+        /* Footer styling */
+        .page-footer {
+            position: fixed; /* Keep it at the bottom of the viewport */
+            bottom: 0; /* Align to the very bottom */
+            width: 100%; /* Span the full width */
+            text-align: center; /* Center the text */
+            padding: 10px 0; /* Add some vertical padding */
+            background-color: #333; /* Dark background for contrast */
+            color: #fff; /* White text color */
+            font-size: 0.9rem; /* Slightly smaller font size */
+            z-index: 999; /* Ensure it's above most content but below modals/controls if needed */
+        }
+
+        /* New styles for the back button */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #60a5fa; /* Tailwind blue-400 */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001; /* Ensure it's above status message */
+        }
+
+        .back-button:hover {
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            transform: translateY(-1px);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NEW: Back to Home Button -->
+    <a href="index.html" class="back-button">← Back to Home</a>
+
+    <div class="status-message" id="statusMessage">Welcome!</div>
+
+    <!-- NEW: Stage Area for the static image. This div is centered via CSS. -->
+    <div class="stage-area" id="stageArea">
+        <!-- The image container is now a child of stage-area and is centered via CSS -->
+        <div class="image-container" id="movingImageContainer">
+            <img id="movingImage" src="bhagyamaam.png" alt="Moving Image">
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <button id="startMicBtn">Start Microphone</button>
+        <button id="stopMicBtn" class="stop" style="display: none;">Stop Microphone</button>
+        <div class="volume-meter">
+            <div class="volume-fill" id="volumeFill"></div>
+        </div>
+        <span id="dbLevel">0 dB</span>
+    </div>
+
+    <audio id="soundEffect" src="audio.mp3" preload="auto"></audio>
+
+    <!-- Custom Modal for Messages -->
+    <div id="customModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle"></h3>
+            <p id="modalMessage"></p>
+            <button id="modalCloseBtn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Element References ---
+        const stageArea = document.getElementById('stageArea');
+        const movingImageContainer = document.getElementById('movingImageContainer');
+        const movingImage = document.getElementById('movingImage');
+        const statusMessage = document.getElementById('statusMessage');
+        const soundEffect = document.getElementById('soundEffect');
+        const startMicBtn = document.getElementById('startMicBtn');
+        const stopMicBtn = document.getElementById('stopMicBtn');
+        const volumeFill = document.getElementById('volumeFill');
+        const dbLevelSpan = document.getElementById('dbLevel');
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        // --- Image Movement Variables ---
+        let posX = 0; // Current X position of the image (top-left corner)
+        let posY = 0; // Current Y position of the image (top-left corner)
+        let velX = 2; // Horizontal velocity (pixels per frame). Adjust this for speed.
+        let velY = 2; // Vertical velocity (pixels per frame). Adjust this for speed.
+        const imageSize = 150; // Width/height of the image container (matches CSS)
+        const padding = 20; // Minimum padding from stage-area edges for the image
+
+        // Define the fixed boundaries for the image movement
+        // These values should match the CSS variables for the .stage-area
+        const FIXED_BOUNDARY_WIDTH = 1000; // Updated value
+        const FIXED_BOUNDARY_HEIGHT = 500;  // Updated value
+
+        // --- Microphone Variables ---
+        let audioContext; // Web Audio API context
+        let analyser;     // AnalyserNode for audio data
+        let microphoneStream; // MediaStream from microphone
+        let animationFrameId; // ID for the requestAnimationFrame loop for audio processing
+        const MIC_THRESHOLD_DB = 90; // dB threshold for playing sound. Adjust this value.
+        const SOUND_COOLDOWN_MS = 3000; // Cooldown period for sound playback (3 seconds)
+        let lastSoundPlayTime = 0; // Timestamp of the last sound playback
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a custom modal message to the user.
+         * Used instead of `alert()` or `confirm()` for better UX.
+         * @param {string} title - The title of the modal.
+         * @param {string} message - The message content.
+         */
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            customModal.classList.add('show');
+        }
+
+        /**
+         * Hides the custom modal.
+         */
+        function hideModal() {
+            customModal.classList.remove('show');
+        }
+
+        // --- Image Movement Logic ---
+
+        /**
+         * Updates the position of the moving image, ensuring it stays within bounds of the stage-area.
+         * This function is called repeatedly via requestAnimationFrame for smooth animation.
+         */
+        function animateImage() {
+            // Calculate the maximum allowed X and Y coordinates for the top-left corner of the image
+            // These are now relative to the top-left of the stage-area.
+            const maxX = FIXED_BOUNDARY_WIDTH - imageSize - padding;
+            const maxY = FIXED_BOUNDARY_HEIGHT - imageSize - padding;
+
+            // Update position based on current velocity
+            posX += velX;
+            posY += velY;
+
+            // Boundary checks and reversal of direction:
+            // If the image's X position exceeds the right boundary or falls below the left boundary
+            if (posX > maxX) {
+                posX = maxX; // Clamp position to the maximum allowed X to prevent going off-screen
+                velX *= -1;  // Reverse horizontal direction to make it bounce back
+            } else if (posX < padding) {
+                posX = padding; // Clamp position to the minimum allowed X (padding from left)
+                velX *= -1;  // Reverse horizontal direction
+            }
+
+            // If the image's Y position exceeds the bottom boundary or falls below the top boundary
+            if (posY > maxY) {
+                posY = maxY; // Clamp position to the maximum allowed Y
+                velY *= -1;  // Reverse vertical direction
+            } else if (posY < padding) {
+                posY = padding; // Clamp position to the minimum allowed Y (padding from top)
+                velY *= -1;  // Reverse vertical direction
+            }
+
+            // Apply the calculated position using CSS transform for smooth, hardware-accelerated animation.
+            // This translation is now relative to the .stage-area's top-left corner.
+            movingImageContainer.style.transform = `translate(${posX}px, ${posY}px)`;
+
+            // Request the next animation frame, creating a continuous loop.
+            animationFrameId = requestAnimationFrame(animateImage); // Assign to animationFrameId
+        }
+
+        // Removed changeImage function as there's only one image.
+
+        // --- Microphone and Audio Logic ---
+
+        /**
+         * Starts listening to microphone input using the Web Audio API.
+         * Sets up an analyser to detect sound levels.
+         */
+        async function startMicrophone() {
+            try {
+                // Request microphone access from the user. This will trigger a browser permission prompt.
+                microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                statusMessage.textContent = 'Microphone access granted. Listening...';
+                statusMessage.classList.remove('bg-red-500'); // Remove error styling
+                statusMessage.classList.add('bg-gray-700'); // Add success styling
+
+                // Create an AudioContext for processing audio
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Create an AnalyserNode to get audio time and frequency data
+                analyser = audioContext.createAnalyser();
+                // Create a MediaStreamSource from the microphone stream
+                const source = audioContext.createMediaStreamSource(microphoneStream);
+
+                // Connect the microphone source to the analyser
+                source.connect(analyser);
+                analyser.fftSize = 2048; // Set the FFT size for frequency analysis
+                const bufferLength = analyser.frequencyBinCount; // Number of data points
+                const dataArray = new Uint8Array(bufferLength); // Array to hold frequency data
+
+                // Update button visibility
+                startMicBtn.style.display = 'none';
+                stopMicBtn.style.display = 'inline-block';
+
+                /**
+                 * Continuously processes audio data from the microphone.
+                 * Calculates approximate dB level and triggers sound if threshold is met.
+                 */
+                function processAudio() {
+                    // Get the frequency data into the dataArray
+                    analyser.getByteFrequencyData(dataArray);
+
+                    // Calculate RMS (Root Mean Square) for loudness estimation.
+                    // This is a common way to get an overall "loudness" from frequency data.
+                    let sumSquares = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        const value = dataArray[i] / 255.0; // Normalize byte value (0-255) to 0-1
+                        sumSquares += value * value;
+                    }
+                    const rms = Math.sqrt(sumSquares / bufferLength);
+
+                    // Convert RMS to an approximate dB value.
+                    // 20 * log10(amplitude) is the formula for dB.
+                    // A small value (0.0001) is used to prevent log(0) errors.
+                    const db = 20 * Math.log10(rms > 0 ? rms : 0.0001);
+                    // Scale dB to a positive range (0-100) for easier visualization and thresholding.
+                    // Adjusting the '+ 100' value might be necessary based on your mic's sensitivity.
+                    const scaledDb = Math.max(0, db + 100);
+
+                    // Update the volume meter's width and the displayed dB level.
+                    const volumePercentage = (scaledDb / 100) * 100; // Convert scaledDb to a percentage for the meter
+                    volumeFill.style.width = `${volumePercentage}%`;
+                    dbLevelSpan.textContent = `${Math.round(scaledDb)} dB`; // Display rounded dB value
+
+                    // Check if the scaled dB level exceeds the threshold AND
+                    // if enough time has passed since the last sound play (cooldown).
+                    if (scaledDb > MIC_THRESHOLD_DB && (Date.now() - lastSoundPlayTime > SOUND_COOLDOWN_MS)) {
+                        playSound(); // Play the sound effect
+                        lastSoundPlayTime = Date.now(); // Reset the cooldown timer
+                    }
+
+                    // Request the next animation frame to continue processing audio.
+                    animationFrameId = requestAnimationFrame(processAudio);
+                }
+
+                processAudio(); // Start the audio processing loop
+            } catch (err) {
+                // Handle errors if microphone access is denied or fails
+                console.error('Error accessing microphone:', err);
+                statusMessage.textContent = 'Microphone access denied or error: ' + err.message;
+                statusMessage.classList.add('bg-red-500'); // Add error styling
+                statusMessage.classList.remove('bg-gray-700');
+                // Reset button visibility
+                startMicBtn.style.display = 'inline-block';
+                stopMicBtn.style.display = 'none';
+                volumeFill.style.width = '0%';
+                dbLevelSpan.textContent = '0 dB';
+                // Show a user-friendly modal explaining the error
+                showModal('Microphone Error', 'Could not access your microphone. Please ensure you have granted permission and no other application is using it. Error: ' + err.message);
+            }
+        }
+
+        /**
+         * Stops listening to microphone input.
+         */
+        function stopMicrophone() {
+            if (microphoneStream) {
+                microphoneStream.getTracks().forEach(track => track.stop());
+                microphoneStream = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            statusMessage.textContent = 'Microphone stopped.';
+            statusMessage.classList.remove('bg-red-500');
+            statusMessage.classList.add('bg-gray-700');
+            startMicBtn.style.display = 'inline-block';
+            stopMicBtn.style.display = 'none';
+            volumeFill.style.width = '0%';
+            dbLevelSpan.textContent = '0 dB';
+        }
+
+        /**
+         * Plays the specific sound effect.
+         */
+        function playSound() {
+            if (soundEffect.paused) {
+                soundEffect.currentTime = 0; // Rewind to start
+                soundEffect.play().catch(error => {
+                    console.error('Error playing sound:', error);
+                    // This error often occurs if the user hasn't interacted with the page yet
+                    // or if autoplay is blocked.
+                    showModal('Audio Playback Error', 'Could not play the sound effect. Please interact with the page first (e.g., click a button) if this is your first time, or check your browser\'s autoplay settings. Error: ' + error.message);
+                });
+                statusMessage.textContent = 'Sound triggered by mic!';
+                console.log('Sound played!');
+            }
+        }
+
+        // --- Event Listeners ---
+        startMicBtn.addEventListener('click', startMicrophone);
+        stopMicBtn.addEventListener('click', stopMicrophone);
+        modalCloseBtn.addEventListener('click', hideModal);
+
+        // --- Initial Setup ---
+        window.onload = () => {
+            // Start image movement animation
+            // Initialize position randomly within the fixed safe area (considering padding)
+            posX = Math.random() * (FIXED_BOUNDARY_WIDTH - imageSize - 2 * padding) + padding;
+            posY = Math.random() * (FIXED_BOUNDARY_HEIGHT - imageSize - 2 * padding) + padding;
+            // Apply initial position relative to the stageArea
+            movingImageContainer.style.transform = `translate(${posX}px, ${posY}px)`;
+            animateImage();
+
+            // Preload the sound effect by trying to play and pausing immediately
+            // This helps with autoplay policies in some browsers
+            soundEffect.volume = 0.5;
+            soundEffect.muted = true;
+            soundEffect.play().then(() => {
+                soundEffect.pause();
+                soundEffect.muted = false; // Unmute after successful (muted) play
+                console.log('Sound preloaded.');
+            }).catch(error => {
+                console.warn('Sound preload failed (expected if no user interaction):', error);
+                // This is often fine, the sound will play on user interaction later.
+            });
+        };
+
+        // Handle window resize to adjust image boundaries
+        window.addEventListener('resize', () => {
+          const maxX = FIXED_BOUNDARY_WIDTH - imageSize - padding;
+          const maxY = FIXED_BOUNDARY_HEIGHT - imageSize - padding;
+            posX = Math.max(padding, Math.min(posX, maxX));
+            posY = Math.max(padding, Math.min(posY, maxY));
+            movingImageContainer.style.transform = `translate(${posX}px, ${posY}px)`;
+        });
+    </script>
+
+  <footer class="page-footer">
+    <div>Made by Parthan</div>
+</footer>
+</body>
+</html>
