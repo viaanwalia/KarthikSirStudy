@@ -205,3 +205,29 @@ body {
   font-size: 0.9rem; /* Slightly smaller font size */
   z-index: 999; /* Ensure it's above most content but below modals/controls if needed */
 }
+
+.back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #60a5fa; /* Tailwind blue-400 */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001; /* Ensure it's above status message */
+        }
+
+        .back-button:hover {
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            transform: translateY(-1px);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
